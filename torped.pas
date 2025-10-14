@@ -22,10 +22,12 @@ type
   end;
 
   TCursor = record
-    posicion:TVector2;
-    caracter:integer;
-    color:TColor;
-    end;
+    indexMaxPos	      : integer;
+    maxPos     : TVector2;
+    posicion	      : TVector2;
+    caracter	      : integer;
+    color	      : TColor;
+    end;	      
 
 //devuelve la diferencia entre en ancho de la pantalla y la posicion del cursor
 function calcularOffset(posi:TVector2):TVector2;
@@ -76,41 +78,56 @@ var
 begin
   n := GetCharPressed();
   if(n <> 0)then begin
-   datos.cantC:= datos.cantC + 1; 
+   datos.cantC:= datos.cantC + 1;
+     cursor.indexMaxpos:= datos.cantC + 1;
    //Aumento el array cuando supero el buffer
    if(datos.cantC > buffer)then
       setlength(datos.caracteres,datos.cantC );
    datos.caracteres[datos.cantC].unicode := n;
    datos.caracteres[datos.cantC].posicion := cursor.posicion;
    cursor.posicion.x := cursor.posicion.x + FontSizeX;
+     cursor.maxpos:= cursor.posicion;
   end;
     end;
 
     
 //Resetea las posicion x del cursor y aumenta y.
-procedure LeerEnter(var posiCursor:TVector2);
+procedure LeerEnter(var posiCursor : TVector2;var maxpos:TVector2);
 begin
   if(IsKeyPressed(KEY_ENTER))then begin
     posiCursor.x:= 0;
     posicursor.y:= posicursor.y + FontSizeY;
+     //xmaxpos:= posicursor;
   end;
 end;
 
 
-procedure moverCursor(var posicursor:TVector2;v:array of Tchar;cantC:integer);
-var
-  max:TVector2;
+//IndexC para ir obteniendo las posiciones de los caracteres anteriores
+procedure moverCursor(var posicursor : TVector2;v:array of Tchar;cantC:integer;
+		      var indexCur   : integer; maxPosCur:TVector2);
+
 begin
-  max.y:= 0;
-  max.x:=FontSizeX;
-  max.x:= max.x + v[cantC].posicion.x;
-  max.y:= max.y + v[cantC].posicion.y;
-  writeln(posicursor.x:0:2,' ',max.x:0:2,' ',posicursor.y,' ',max.y);
-  if(posicursor.x = max.x) and (posicursor.y = max.y)then
-    //esto no esta funcionando
-    if(IsKeyPressed(KEY_LEFT))then begin
-      posicursor := v[cantC -1].posicion;
-    end;
+   if(indexCur > 0)then
+      if(IsKeyPressed(KEY_LEFT))then begin
+	 indexCur:= indexCur - 1;
+	 posicursor:= v[indexCur].posicion;
+      end;
+   
+   if(indexCur < cantC +1)then begin
+      if(indexCur < cantC)then begin
+	 if(IsKeyPressed(KEY_RIGHT))then begin
+	 indexCur:= indexCur + 1;
+	 posicursor:= v[indexCur].posicion;
+      end;
+      end
+     else if(IsKeyPressed(KEY_RIGHT))then begin
+	indexCur:= indexCur + 1;
+//	if(calcularOffset(v[cantC].posicion)
+	posicursor:= v[cantC].posicion;
+	posicursor:= maxposcur;
+   end;
+   end;
+     
 end;
 
   var
@@ -119,6 +136,7 @@ end;
     cursor:TCursor;
 begin
   cursor.posicion.x:= 0; cursor.posicion.y:= 0;
+   cursor.indexMaxPos:= 1;
   cursor.caracter:= 9601; cursor.color:= RAYWHITE;
   datos.color:= RAYWHITE;
   //Reserva menoria para el array dinamico
@@ -129,8 +147,9 @@ begin
   while not WindowShouldClose() do begin
     BeginDrawing();
     LeerCaracter(datos,cursor);
-    LeerEnter(cursor.posicion);
-    moverCursor(cursor.posicion,datos.caracteres,datos.cantC);
+     LeerEnter(cursor.posicion,cursor.maxpos);
+     moverCursor(cursor.posicion,datos.caracteres,datos.cantC,
+		 cursor.indexmaxpos,cursor.maxpos);
     rederizarCaracteres(f,datos,cursor);
     ClearBackground(black);
     EndDrawing();
