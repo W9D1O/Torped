@@ -64,7 +64,7 @@ begin
     end;
   end;
   //Hasta que no se haga un salto de linea el cursor siempre va a a estar una posicion
-  //adelante del último caracter, con esa condicion solo se acomoda de manera local.
+  //adelante del ultimo caracter, con esa condicion solo se acomoda de manera local.
   if(cursor.posicion.x >= ancho)then
     cursor.posicion.x := ancho - FontSizeX;
   DrawTextCodepoint(f,cursor.caracter,cursor.posicion,FontSizeY,cursor.color);
@@ -126,13 +126,12 @@ begin
       end
      else if(IsKeyDown(KEY_RIGHT))then begin
 	indexCur:= indexCur + 1;
-//	if(calcularOffset(v[cantC].posicion)
-	posicursor:= v[cantC].posicion;
+	posicursor:= v[indexCur].posicion;
 	posicursor:= maxposcur;
    end;
    end;
 
-   //Esto es orrible, si. Pero por el momento funciona. Eso si No te olvides de cambiarlo.
+   //Esto es horrible, si. Pero por el momento funciona. Eso si No te olvides de cambiarlo.
    if(IsKeyDown(KEY_UP))then begin
       while(cantC <> 0)do begin
       cantC := cantC - 1;
@@ -143,19 +142,19 @@ begin
 	 end;
       end
    end;
-   //Esto es orrible, si. Pero por el momento funciona. Eso si No te olvides de cambiarlo.
-   if(IsKeyDown(KEY_DOWN))then begin
+   //Esto es horrible, si. Pero por el momento funciona. Eso si No te olvides de cambiarlo.
+   //BUG: Cuando nos movemos hacia abajo y despues nos queremos mover a la izquiera o la deracha el
+   //cursor de mueve desde la ultima posicion
+   if(IsKeyPressed(KEY_DOWN))then begin
       while(indexCur  < cantC)do begin
-	 
 	 if(v[indexCur].posicion.x = posicursor.x) and (v[indexCur].posicion.y > posicursor.y)then begin
 	    posicursor := v[indexCur].posicion;
+	    writeln(posicursor.x:0:2,' ',posicursor.y:0:2);
 	    exit();
 	 end;
 	 indexCur:= indexCur + 1;
       end
       end
-   
-     
 end;
 
   var
