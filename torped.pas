@@ -108,8 +108,10 @@ end;
 //IndexC para ir obteniendo las posiciones de los caracteres anteriores
 procedure moverCursor(var posicursor : TVector2;v:array of Tchar;cantC:integer;
 		      var indexCur   : integer; maxPosCur:TVector2);
-
+var
+   aux : integer;
 begin
+   aux:= indexCur; //este auxiliar esta para soluucionar el bus cuando no hay maws caracteres abajo de la linea
    if(indexCur > 0)then
       if(IsKeyDown(KEY_LEFT))then begin
 	 indexCur:= indexCur - 1;
@@ -143,16 +145,14 @@ begin
       end
    end;
    //Esto es horrible, si. Pero por el momento funciona. Eso si No te olvides de cambiarlo.
-   //BUG: Cuando nos movemos hacia abajo y despues nos queremos mover a la izquiera o la deracha el
-   //cursor de mueve desde la ultima posicion
-   if(IsKeyPressed(KEY_DOWN))then begin
-      while(indexCur  < cantC)do begin
-	 if(v[indexCur].posicion.x = posicursor.x) and (v[indexCur].posicion.y > posicursor.y)then begin
+      if(IsKeyPressed(KEY_DOWN))then begin
+      while(aux  < cantC)do begin
+	 if(v[aux].posicion.x = posicursor.x) and (v[aux].posicion.y > posicursor.y)then begin
+	    indexCur:= aux;
 	    posicursor := v[indexCur].posicion;
-	    writeln(posicursor.x:0:2,' ',posicursor.y:0:2);
 	    exit();
 	 end;
-	 indexCur:= indexCur + 1;
+	 aux:= aux + 1;
       end
       end
 end;
