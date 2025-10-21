@@ -9,12 +9,12 @@ const
   buffer = 1024;
   FontSizeY = ancho/25;
   FontSizeX = FontSizeY/2;
-    
 type
   Tchar = record
     posicion:TVector2;
     unicode:integer;
   end;
+   
   VTchar = record
     cantC:integer;
     color:TColor; //Puede que el color este meio al pedo.
@@ -23,7 +23,7 @@ type
 
   TCursor = record
     indexMaxPos	      : integer;
-    maxPos     : TVector2;
+    maxPos            : TVector2;
     posicion	      : TVector2;
     caracter	      : integer;
     color	      : TColor;
@@ -83,10 +83,11 @@ begin
    //Aumento el array cuando supero el buffer
    if(datos.cantC > buffer)then
       setlength(datos.caracteres,datos.cantC );
+     
    datos.caracteres[datos.cantC].unicode := n;
    datos.caracteres[datos.cantC].posicion := cursor.posicion;
    cursor.posicion.x := cursor.posicion.x + FontSizeX;
-     cursor.maxpos:= cursor.posicion;
+   cursor.maxpos:= cursor.posicion; //Guarda la poscion maxima, si me muevo de la posicion maxima puedo recuperarla
   end;
     end;
 
@@ -102,31 +103,58 @@ begin
 end;
 
 
+
+
 //IndexC para ir obteniendo las posiciones de los caracteres anteriores
 procedure moverCursor(var posicursor : TVector2;v:array of Tchar;cantC:integer;
 		      var indexCur   : integer; maxPosCur:TVector2);
 
 begin
    if(indexCur > 0)then
-      if(IsKeyPressed(KEY_LEFT))then begin
+      if(IsKeyDown(KEY_LEFT))then begin
 	 indexCur:= indexCur - 1;
 	 posicursor:= v[indexCur].posicion;
+
       end;
    
    if(indexCur < cantC +1)then begin
       if(indexCur < cantC)then begin
-	 if(IsKeyPressed(KEY_RIGHT))then begin
+	 if(IsKeyDown(KEY_RIGHT))then begin
 	 indexCur:= indexCur + 1;
 	 posicursor:= v[indexCur].posicion;
       end;
       end
-     else if(IsKeyPressed(KEY_RIGHT))then begin
+     else if(IsKeyDown(KEY_RIGHT))then begin
 	indexCur:= indexCur + 1;
 //	if(calcularOffset(v[cantC].posicion)
 	posicursor:= v[cantC].posicion;
 	posicursor:= maxposcur;
    end;
    end;
+
+   //Esto es orrible, si. Pero por el momento funciona. Eso si No te olvides de cambiarlo.
+   if(IsKeyDown(KEY_UP))then begin
+      while(cantC <> 0)do begin
+      cantC := cantC - 1;
+	 if(v[cantC].posicion.x = posicursor.x) and (v[cantC].posicion.y < posicursor.y)then begin
+	    posicursor := v[cantC].posicion;
+	    indexCur:= cantC;
+	    exit();
+	 end;
+      end
+   end;
+   //Esto es orrible, si. Pero por el momento funciona. Eso si No te olvides de cambiarlo.
+   if(IsKeyDown(KEY_DOWN))then begin
+      while(indexCur  < cantC)do begin
+	 
+	 if(v[indexCur].posicion.x = posicursor.x) and (v[indexCur].posicion.y > posicursor.y)then begin
+	    posicursor := v[indexCur].posicion;
+	    exit();
+	 end;
+	 indexCur:= indexCur + 1;
+      end
+      end
+   
      
 end;
 
@@ -136,7 +164,7 @@ end;
     cursor:TCursor;
 begin
   cursor.posicion.x:= 0; cursor.posicion.y:= 0;
-   cursor.indexMaxPos:= 1;
+   cursor.indexMaxPos:= 1; //Tengo que ver esto, porque ya tengo un contador de caracteres, esta esta siempre 1+ que el contador.
   cursor.caracter:= 9601; cursor.color:= RAYWHITE;
   datos.color:= RAYWHITE;
   //Reserva menoria para el array dinamico
