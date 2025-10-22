@@ -47,7 +47,7 @@ end;
 
 
 //Parece que datos funciona como si fuera un puntero, por el momento usar variables auxiliares
-procedure rederizarCaracteres(f:TFont; datos:VTchar; cursor:Tcursor);
+procedure renderizarCaracteres(f:TFont; datos:VTchar; cursor:Tcursor);
 var 
 i:integer;
 offset:TVector2;
@@ -132,7 +132,7 @@ begin
 	posicursor:= maxposcur;
    end;
    end;
-
+   //TODO: cambiar este mamarracho
    //Esto es horrible, si. Pero por el momento funciona. Eso si No te olvides de cambiarlo.
    if(IsKeyDown(KEY_UP))then begin
       while(cantC <> 0)do begin
@@ -157,6 +157,30 @@ begin
       end
 end;
 
+
+procedure eliminarCaracter(var v : array of TChar;var cantC:integer;var posicursor:TVector2;var indexCur:integer );
+var
+   aux : TVector2;
+   i   : integer;
+begin
+   if(indexCur = cantC + 1)then begin
+   if(IsKeyPressed(KEY_BACKSPACE))then begin
+      aux:= v[indexCur -1].posicion;
+      //delete(v,indexCur - 1,1);
+      for i:= indexCur - 1 to cantC - 1 do
+	 v[i]:= v[i + i];
+      cantC := cantC - 1;
+      indexCur:= indexCur -1;
+      posicursor:= aux;
+   end;
+      end
+   else begin
+   end;
+      
+end;
+
+
+
   var
     datos:VTchar;
     f:TFont;
@@ -177,7 +201,8 @@ begin
      LeerEnter(cursor.posicion,cursor.maxpos);
      moverCursor(cursor.posicion,datos.caracteres,datos.cantC,
 		 cursor.indexmaxpos,cursor.maxpos);
-    rederizarCaracteres(f,datos,cursor);
+     eliminarCaracter(datos.caracteres,datos.cantC,cursor.posicion,cursor.indexmaxpos);
+    renderizarCaracteres(f,datos,cursor);
     ClearBackground(black);
     EndDrawing();
   end;
